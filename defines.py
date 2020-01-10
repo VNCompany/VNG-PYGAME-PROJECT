@@ -12,3 +12,13 @@ TITLE_TEXT = ["--------------------- Управление ---------------------"
 SCORE_TEXT = ["-------------- Итоги --------------",
               "    Счёт: {0}",
               "---------------------------------------"]
+
+IMAGE_MAPS = [
+    "images/planet_1.jpg",
+    "images/planet_2.jpg",
+    "images/planet_3.jpg",
+    "images/planet_4.jpg",
+    "images/planet_5.jpg",
+]
+
+BOSS_MAP = "image/boss_planet.jpg"

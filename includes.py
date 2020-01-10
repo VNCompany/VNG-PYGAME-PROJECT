@@ -13,7 +13,6 @@ def load_image(name, colorkey=None):
     try:
         image = pygame.image.load(fullname)
     except pygame.error as message:
-        print('Cannot load image:', name)
         raise SystemExit(message)
     image = image.convert_alpha()
 
@@ -69,6 +68,6 @@ def score_screen(text: list, screen, clock, fps, score):
                 terminate()
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
-                pass  # TODO
+                pass
         pygame.display.flip()
         clock.tick(fps)
