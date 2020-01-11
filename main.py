@@ -2,10 +2,12 @@ import random
 import pygame
 from defines import *
 from includes import *
+
 from objects.win_and_lose import ResScreen
 from objects.level import Level
 
 from objects.ship import Ship
+from objects.laser import Laser
 
 pygame.init()
 
@@ -60,8 +62,11 @@ def set_lose():
 
 screen_start(TITLE_TEXT, screen, clock, FPS)
 
+# Groups
 player_group = pygame.sprite.Group()
-player = Ship(s_ship, s_explosion, player_group)
+player = Ship(s_ship, s_explosion, player_group)  # Main player
+
+laser_group = pygame.sprite.Group()
 
 # for level in levels:
 running = True
@@ -73,6 +78,10 @@ while running:
             terminate()
         if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
             running = False
+        if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+            Laser(s_laser, laser_group, player.rect)
+            wav_laser.play()
+
     if pressed[pygame.K_UP]:
         player.transfer('up')
     if pressed[pygame.K_DOWN]:
@@ -85,6 +94,8 @@ while running:
     screen.blit(load_image(levels[0].image), (0, 0))
 
     player_group.draw(screen)
+    laser_group.draw(screen)
+    laser_group.update()
 
     pygame.display.flip()
     clock.tick(FPS)
