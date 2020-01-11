@@ -8,6 +8,8 @@ from objects.level import Level
 
 from objects.ship import Ship
 from objects.laser import Laser
+from objects.enemy import Enemy
+from objects.meteorite import Meteorite
 
 pygame.init()
 
@@ -28,6 +30,7 @@ wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
 # Image files
 win_scr = ResScreen(load_image("sprites/bg_win.jpg"))
 lose_scr = ResScreen(load_image("sprites/bg_lose.jpg"))
+background = load_image("images/background.jpg")
 
 # Sprites
 s_ship = load_image("sprites/spaceship1.png")
@@ -68,7 +71,28 @@ player = Ship(s_ship, s_explosion, player_group)  # Main player
 
 laser_group = pygame.sprite.Group()
 
+enemy_group = pygame.sprite.Group()
+
+
+def generate_enemies(count: int, q: int):
+    start_pos = 1000
+    end_pos = 100 * count + start_pos - 80
+
+    for i in range(count):
+        if random.randint(1, q) == 1:
+            Meteorite(s_meteorite,
+                      enemy_group,
+                      (random.randint(start_pos, end_pos), random.randint(5, 395)))
+        else:
+            Enemy(s_enemy_ship,
+                  s_explosion,
+                  enemy_group,
+                  (random.randint(start_pos, end_pos), random.randint(5, 395)))
+
+
 # for level in levels:
+generate_enemies(40, 7)
+status = G_STATUS_PLAYING
 running = True
 while running:
     pressed = pygame.key.get_pressed()
@@ -76,26 +100,82 @@ while running:
         if e.type == pygame.QUIT:
             running = False
             terminate()
-        if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-            running = False
-        if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
-            Laser(s_laser, laser_group, player.rect)
-            wav_laser.play()
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_ESCAPE:
+                running = False
+                status = G_STATUS_STOPPED
+            if e.key == pygame.K_p:
+                if status == G_STATUS_PLAYING:
+                    status = G_STATUS_PAUSE
+                elif status == G_STATUS_PAUSE:
+                    status = G_STATUS_PLAYING
 
-    if pressed[pygame.K_UP]:
-        player.transfer('up')
-    if pressed[pygame.K_DOWN]:
-        player.transfer('down')
-    if pressed[pygame.K_LEFT]:
-        player.transfer('left')
-    if pressed[pygame.K_RIGHT]:
-        player.transfer('right')
+        if status == G_STATUS_GAMEOVER or status == G_STATUS_WIN:
+            if e.type == pygame.KEYDOWN or e.type == pygame.MOUSEBUTTONDOWN:
+                running = False
+
+        if status == G_STATUS_PLAYING:
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+                Laser(s_laser, laser_group, player.rect)
+                wav_laser.play()
+
+    if status == G_STATUS_PAUSE:
+        screen.blit(background, (0, 0))
+        font = pygame.font.Font(None, 100)
+        pause_text = font.render("ПАУЗА", 1, (255, 255, 0))
+        pt_rect = pause_text.get_rect()
+        pt_rect.x = 280
+        pt_rect.y = 214
+        screen.blit(pause_text, pt_rect)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
+
+    if status == G_STATUS_PLAYING:
+        if pressed[pygame.K_UP]:
+            player.transfer('up')
+        if pressed[pygame.K_DOWN]:
+            player.transfer('down')
+        if pressed[pygame.K_LEFT]:
+            player.transfer('left')
+        if pressed[pygame.K_RIGHT]:
+            player.transfer('right')
 
     screen.blit(load_image(levels[0].image), (0, 0))
 
+    # Drawing elements
     player_group.draw(screen)
     laser_group.draw(screen)
-    laser_group.update()
+    enemy_group.draw(screen)
+
+    # Action elements
+    if status == G_STATUS_PLAYING:
+        enemy_group.update()
+        laser_group.update()
+
+        for enemy in enemy_group:
+            for laser in laser_group:
+                if pygame.sprite.collide_mask(laser, enemy):
+                    laser.kill()
+                    if type(enemy).__name__ != "Meteorite":
+                        enemy.kill()
+                        SCORE += 1
+
+            if pygame.sprite.collide_mask(player, enemy):
+                player.crash()
+                if type(enemy).__name__ != "Meteorite":
+                    enemy.crash()
+                wav_explosion.play()
+                status = G_STATUS_GAMEOVER
+
+    if status == G_STATUS_GAMEOVER:
+        set_lose()
+    elif status == G_STATUS_WIN:
+        set_win()
+
+    if len(enemy_group) == 0:
+        status = G_STATUS_WIN
 
     pygame.display.flip()
     clock.tick(FPS)

@@ -4,5 +4,5 @@ class ResScreen:
         self.xy = (-800, 0)
 
     def update(self):
-        if self.xy[0] < -38:
-            self.xy = (self.xy[0] + 38, self.xy[1])
+        if self.xy[0] < -8:
+            self.xy = (self.xy[0] + 18, self.xy[1])

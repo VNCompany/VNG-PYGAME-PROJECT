@@ -2,6 +2,12 @@ SIZE = WIDTH, HEIGHT = 800, 500
 FPS = 60
 WINDOW_TITLE = "Игра - Космос"
 
+G_STATUS_PLAYING = 0
+G_STATUS_PAUSE = 1
+G_STATUS_WIN = 2
+G_STATUS_GAMEOVER = 3
+G_STATUS_STOPPED = 4
+
 TITLE_TEXT = ["--------------------- Управление ---------------------",
               "     Стрелки клавиатуры - Перемещение",
               "     ПРОБЕЛ - Стрельба",
