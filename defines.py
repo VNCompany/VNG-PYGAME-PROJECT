@@ -27,4 +27,4 @@ IMAGE_MAPS = [
     "images/planet_5.jpg",
 ]
 
-BOSS_MAP = "image/boss_planet.jpg"
+BOSS_MAP = "images/boss_planet.jpg"
