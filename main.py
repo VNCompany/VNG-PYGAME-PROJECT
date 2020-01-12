@@ -48,8 +48,8 @@ levels = [
     Level(2, IMAGE_MAPS[1], 9, 20, False),
     Level(3, IMAGE_MAPS[2], 8, 25, False),
     Level(4, IMAGE_MAPS[3], 7, 30, False),
-    Level(5, IMAGE_MAPS[4], 7, 40, False),
-    Level(6, BOSS_MAP, 4, 50, True),
+    Level(5, IMAGE_MAPS[4], 7, 40, False, 4),
+    Level(6, BOSS_MAP, 4, 50, True, 4),
 ]
 
 
@@ -83,7 +83,7 @@ laser_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 
 
-def generate_enemies(count: int, q: int):
+def generate_enemies(count: int, q: int, speed=3):
     start_pos = 1000
     end_pos = 100 * count + start_pos - 200
 
@@ -91,12 +91,14 @@ def generate_enemies(count: int, q: int):
         if random.randint(1, q) == 2:
             Meteorite(s_meteorite,
                       enemy_group,
-                      (random.randint(start_pos, end_pos), random.randint(5, 395)))
+                      (random.randint(start_pos, end_pos), random.randint(5, 395)),
+                      speed)
         else:
             Enemy(s_enemy_ship,
                   s_explosion,
                   enemy_group,
-                  (random.randint(start_pos, end_pos), random.randint(5, 395)))
+                  (random.randint(start_pos, end_pos), random.randint(5, 395)),
+                  speed)
 
 
 status = G_STATUS_PLAYING
@@ -104,7 +106,7 @@ status = G_STATUS_PLAYING
 
 def load_level(lvl: Level):
     global status, SCORE
-    generate_enemies(lvl.enemy, lvl.quality)
+    generate_enemies(lvl.enemy, lvl.quality, lvl.enemy_speed)
 
     running = True
     while running:
@@ -124,7 +126,7 @@ def load_level(lvl: Level):
                         status = G_STATUS_PLAYING
 
             if status == G_STATUS_GAMEOVER or status == G_STATUS_WIN:
-                if e.type == pygame.KEYDOWN or e.type == pygame.MOUSEBUTTONDOWN:
+                if e.type == pygame.KEYDOWN and e.key == 13:
                     running = False
 
             if status == G_STATUS_PLAYING:
@@ -182,6 +184,8 @@ def load_level(lvl: Level):
                     wav_explosion.play()
                     status = G_STATUS_GAMEOVER
 
+        set_score(SCORE)
+
         if status == G_STATUS_GAMEOVER:
             set_lose()
         elif status == G_STATUS_WIN:
@@ -193,13 +197,16 @@ def load_level(lvl: Level):
             else:
                 return
 
-        set_score(SCORE)
         pygame.display.flip()
         clock.tick(FPS)
 
 
 for level in levels:
     load_level(level)
+
+    # Closing level
+    player.rect.x = 100
+    player.rect.y = 150
 
     if status != G_STATUS_PLAYING:
         break

@@ -4,7 +4,7 @@ import pygame
 class Enemy(pygame.sprite.Sprite):
     is_alive = True
 
-    def __init__(self, image, image_crash, group, xy: tuple):
+    def __init__(self, image, image_crash, group, xy: tuple, speed=3):
         super(Enemy, self).__init__(group)
         self.image = image
         self.image_crash = image_crash
@@ -12,12 +12,13 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = image.get_rect()
         self.rect.x = xy[0]
         self.rect.y = xy[1]
+        self.speed = speed
 
     def update(self):
         if not self.is_alive:
             return
 
-        self.rect = self.rect.move(-3, 0)
+        self.rect = self.rect.move(-self.speed, 0)
         if self.rect.x < -150:
             self.kill()
 
