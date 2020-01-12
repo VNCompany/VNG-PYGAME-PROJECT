@@ -27,13 +27,13 @@ def screen_start(text: list, screen, clock, fps):
     bg = load_image("images/background.jpg")
     screen.blit(bg, (0, 0))
     font = pygame.font.Font(None, 35)
-    txt_pos = 135
+    txt_pos = 140
     for string in text:
         s = font.render(string, 1, (255, 255, 0))
         s_rect = s.get_rect()
         txt_pos += 15
         s_rect.y = txt_pos
-        s_rect.x = 155
+        s_rect.x = 170
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
