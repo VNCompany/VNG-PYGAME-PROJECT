@@ -27,7 +27,7 @@ def screen_start(text: list, screen, clock, fps):
     bg = load_image("images/background.jpg")
     screen.blit(bg, (0, 0))
     font = pygame.font.Font(None, 35)
-    txt_pos = 150
+    txt_pos = 135
     for string in text:
         s = font.render(string, 1, (255, 255, 0))
         s_rect = s.get_rect()

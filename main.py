@@ -27,6 +27,8 @@ wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
 wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
 wav_laser = pygame.mixer.Sound("data/sound/laser.wav")
 wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
+mp3_start_sound = "data/sound/start_sound.mp3"
+mp3_background = "data/sound/background.mp3"
 
 # Image files
 win_scr = ResScreen(load_image("sprites/bg_win.jpg"))
@@ -73,7 +75,14 @@ def set_score(score: int):
     screen.blit(pause_text, pt_rect)
 
 
+pygame.mixer.music.load(mp3_start_sound)
+pygame.mixer.music.play(start=0.1, loops=-1)
 screen_start(TITLE_TEXT, screen, clock, FPS)
+pygame.mixer.music.stop()
+
+pygame.mixer.music.load(mp3_background)
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(loops=-1)
 
 # Groups
 player_group = pygame.sprite.Group()
@@ -87,20 +96,20 @@ blackhole_group = pygame.sprite.Group()
 
 
 def generate_enemies(count: int, q: int, speed=3):
-    start_pos = 1000
-    end_pos = 100 * count + start_pos - 200
+    start_pos = 800
+    end_pos = 50 * count + start_pos
 
     for i in range(count):
         if random.randint(1, q) == 2:
             Meteorite(s_meteorite,
                       enemy_group,
-                      (random.randint(start_pos, end_pos), random.randint(5, 395)),
+                      (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
                       speed)
         else:
             Enemy(s_enemy_ship,
                   s_explosion,
                   enemy_group,
-                  (random.randint(start_pos, end_pos), random.randint(5, 395)),
+                  (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
                   speed)
 
 
@@ -112,6 +121,7 @@ def load_level(lvl: Level):
     generate_enemies(lvl.enemy, lvl.quality, lvl.enemy_speed)
     slider_pos_x = 0
     status = G_STATUS_STOPPED
+
     running = True
     while running:
         pressed = pygame.key.get_pressed()
@@ -126,8 +136,10 @@ def load_level(lvl: Level):
                 if e.key == pygame.K_p:
                     if status == G_STATUS_PLAYING:
                         status = G_STATUS_PAUSE
+                        pygame.mixer.music.pause()
                     elif status == G_STATUS_PAUSE:
                         status = G_STATUS_PLAYING
+                        pygame.mixer.music.unpause()
 
             if status == G_STATUS_GAMEOVER or status == G_STATUS_WIN:
                 if e.type == pygame.KEYDOWN and e.key == 13:
@@ -231,6 +243,7 @@ for level in levels:
 
     if status != G_STATUS_PLAYING:
         level_count = level.id - 1
+        pygame.mixer.music.stop()
         break
 
 score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
