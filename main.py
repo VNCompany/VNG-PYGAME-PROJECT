@@ -10,6 +10,7 @@ from objects.ship import Ship
 from objects.laser import Laser
 from objects.enemy import Enemy
 from objects.meteorite import Meteorite
+from objects.blackhole import Blackhole
 
 pygame.init()
 
@@ -82,6 +83,8 @@ laser_group = pygame.sprite.Group()
 
 enemy_group = pygame.sprite.Group()
 
+blackhole_group = pygame.sprite.Group()
+
 
 def generate_enemies(count: int, q: int, speed=3):
     start_pos = 1000
@@ -107,7 +110,8 @@ status = G_STATUS_PLAYING
 def load_level(lvl: Level):
     global status, SCORE
     generate_enemies(lvl.enemy, lvl.quality, lvl.enemy_speed)
-
+    slider_pos_x = 0
+    status = G_STATUS_STOPPED
     running = True
     while running:
         pressed = pygame.key.get_pressed()
@@ -195,22 +199,40 @@ def load_level(lvl: Level):
             if lvl.id == 6:
                 status = G_STATUS_WIN
             else:
-                return
+                blackhole_group.draw(screen)
+                blackhole_group.update()
+
+                for blackhole in blackhole_group:
+                    if pygame.sprite.collide_mask(player, blackhole):
+                        wav_teleportation.play()
+                        return
+
+        if -1 < slider_pos_x < 800:
+            pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(slider_pos_x, 0, 800, 500))
+            slider_pos_x += 50
+        elif slider_pos_x != -1:
+            slider_pos_x = -1
+            status = G_STATUS_PLAYING
 
         pygame.display.flip()
         clock.tick(FPS)
 
 
+level_count = 0
 for level in levels:
+    Blackhole(s_blackhole, blackhole_group)
+
     load_level(level)
 
     # Closing level
     player.rect.x = 100
     player.rect.y = 150
+    blackhole_group.empty()
 
     if status != G_STATUS_PLAYING:
+        level_count = level.id - 1
         break
 
-score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE))
+score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
 
 pygame.quit()

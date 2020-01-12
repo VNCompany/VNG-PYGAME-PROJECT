@@ -48,17 +48,18 @@ def screen_start(text: list, screen, clock, fps):
         clock.tick(fps)
 
 
-def score_screen(text: list, screen, clock, fps, score):
+def score_screen(text: list, screen, clock, fps, score, level_count):
     bg = load_image("images/background.jpg")
     screen.blit(bg, (0, 0))
     font = pygame.font.Font(None, 35)
-    txt_pos = 190
+    txt_pos = 170
     for string in text:
-        s = font.render(string.replace("{0}", score), 1, (255, 255, 0))
+        s = font.render(string.replace("{0}", score).replace("{1}", level_count),
+                        1, (255, 255, 0))
         s_rect = s.get_rect()
         txt_pos += 15
         s_rect.y = txt_pos
-        s_rect.x = 250
+        s_rect.x = 200
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
