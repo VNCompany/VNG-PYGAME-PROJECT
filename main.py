@@ -304,6 +304,11 @@ for level in levels:
         pygame.mixer.music.stop()
         break
 
+if status == G_STATUS_WIN:
+    level_count = 6
+
+pygame.mixer.music.load(mp3_start_sound)
+pygame.mixer.music.play(start=0.6, loops=-1)
 score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
 
 pygame.quit()
