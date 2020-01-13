@@ -1,5 +1,6 @@
 import random
 import pygame
+import sys
 from defines import *
 from includes import *
 
@@ -58,6 +59,9 @@ levels = [
     Level(5, IMAGE_MAPS[4], 7, 40, False, 4),
     Level(6, BOSS_MAP, 4, 50, True, 4)
 ]
+
+if len(sys.argv) == 2:
+    levels = list(filter(lambda t: str(t.id) == str(sys.argv[1]), levels))
 
 
 def set_win():
