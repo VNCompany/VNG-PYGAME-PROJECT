@@ -1,51 +1,98 @@
 import random
 
 
-def check_intersection_pre(el, rect):
-    return rect[0] <= el[0] <= rect[3] and rect[1] <= el[1] <= rect[2] or \
-           rect[0] <= el[3] <= rect[3] and rect[1] <= el[1] <= rect[2] or \
-           rect[0] <= el[0] <= rect[3] and rect[1] <= el[2] <= rect[2] or \
-           rect[0] <= el[3] <= rect[3] and rect[1] <= el[2] <= rect[2]
+class IRect:
+    def __init__(self, name, wh, *args):
+        if len(args) == 4:
+            p1 = args[0]
+            p2 = args[1]
+            p3 = args[2]
+            p4 = args[3]
+        elif len(args) == 3 and type(args[2]) is tuple:
+            p1 = args[0]
+            p2 = args[1]
+            p3, p4 = args[2]
+        elif len(args) == 3 and type(args[2]) is int:
+            p1 = args[0]
+            p2 = args[1]
+            p3, p4 = args[2], args[2]
+        elif len(args) == 1:
+            p1, p2, p3, p4 = args[0]
+        else:
+            p1, p2, p3, p4 = 0, 0, 0, 0
 
+        self.x1 = p1
+        self.y1 = p2
+        self.Name = name
+        if wh:
+            self.x2 = p1 + p3
+            self.y2 = p2 + p4
+            self.Width = p3
+            self.Height = p4
+        else:
+            self.Width = p3 - p1
+            self.Height = p4 - p2
+            self.x2 = p3
+            self.y2 = p4
 
-def check_intersection(xy1: tuple, xy2: tuple, size: tuple):
-    ax = xy1[0]
-    ay = xy1[1]
-    ax1 = ax + size[0]
-    ay1 = ay + size[1]
+    def get_coords(self, wh=False):
+        if wh:
+            return self.x1, self.y1, self.Width, self.Height
+        else:
+            return self.x1, self.y1, self.x2, self.y2
 
-    bx = xy2[0]
-    by = xy2[1]
-    bx1 = bx + size[0]
-    by1 = by + size[1]
+    def get_points(self):
+        return self.x1, self.y1
 
-    return check_intersection_pre((ax, ay, ax1, ay1), (bx, by, bx1, by1))
+    def get_tuple(self):
+        return self.get_points() + (self.Name,)
+
+    def __eq__(self, other):
+        return (self.x1 == other.x1 and
+                self.y1 == other.y1 and
+                self.x2 == other.x2 and
+                self.y2 == other.y2)
+
+    def check_intersection(self, other):
+        if self == other:
+            return True
+        if (self.x1 < other.x2 < self.x2) and (self.y1 < other.y2 < self.y2):
+            return True
+        if (self.x1 < other.x2 < self.x2) and (self.y1 < other.y1 < self.y2):
+            return True
+        if (self.x1 < other.x1 < self.x2) and (self.y1 < other.y2 < self.y2):
+            return True
+        if (self.x1 < other.x1 < self.x2) and (self.y1 < other.y1 < self.y2):
+            return True
+        return False
 
 
 def characters_generator(count: int, q: int, size: tuple, add_width: int = 300):
     points = []
 
     min_width = 950
-    width = (count * size[0] * size[1]) // 500 + add_width + 102 + min_width
+    width = (count * size[0] * size[1]) // 500 + add_width + 902 + min_width
 
     q_counter = 0
     for i in range(count):
         not_valid = True
         while not_valid:
             x = random.randrange(min_width, width)
-            y = random.randrange(5, 394)
+            y = random.randrange(2, 394)
+            rect = IRect("a", True, x, y, size)
 
             not_valid = False
             for point in points:
-                if check_intersection((x, y), (point[0], point[1]), size):
+                if rect.check_intersection(IRect("b", True, point[0], point[1], size)):
                     not_valid = True
                     break
 
             if not not_valid:
                 if q_counter == q:
                     q_counter = 0
-                    points.append((x, y, "m"))
+                    rect.Name = "m"
                 else:
-                    points.append((x, y, "e"))
+                    rect.Name = "e"
                     q_counter += 1
+                points.append(rect.get_tuple())
     return points

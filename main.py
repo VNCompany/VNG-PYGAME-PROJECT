@@ -1,8 +1,7 @@
 import random
-import pygame
-import sys
 from defines import *
 from includes import *
+from characters_generator import characters_generator
 
 from objects.win_and_lose import ResScreen
 from objects.level import Level
@@ -52,12 +51,12 @@ s_blackhole = load_image("sprites/blackhole.png")
 
 # Levels
 levels = [
-    Level(1, IMAGE_MAPS[0], 10, 10, False),
-    Level(2, IMAGE_MAPS[1], 9, 20, False),
-    Level(3, IMAGE_MAPS[2], 8, 25, False),
-    Level(4, IMAGE_MAPS[3], 7, 30, False),
-    Level(5, IMAGE_MAPS[4], 7, 40, False, 4),
-    Level(6, BOSS_MAP, 4, 50, True, 4)
+    Level(1, IMAGE_MAPS[0], 11, 10, False),
+    Level(2, IMAGE_MAPS[1], 5, 20, False),
+    Level(3, IMAGE_MAPS[2], 4, 25, False),
+    Level(4, IMAGE_MAPS[3], 4, 30, False),
+    Level(5, IMAGE_MAPS[4], 3, 40, False, 4),
+    Level(6, BOSS_MAP, 3, 50, True, 4)
 ]
 
 if len(sys.argv) == 2:
@@ -115,21 +114,38 @@ boss_group = pygame.sprite.Group()
 boss_explosion_group = pygame.sprite.Group()
 
 
-def generate_enemies(count: int, q: int, speed=3):
-    start_pos = 800
-    end_pos = 50 * count + start_pos
+# def generate_enemies(count: int, q: int, speed=3):
+#     start_pos = 800
+#     end_pos = 50 * count + start_pos
+#
+#     for i in range(count):
+#         if random.randint(1, q) == 2:
+#             Meteorite(s_meteorite,
+#                       enemy_group,
+#                       (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
+#                       speed)
+#         else:
+#             Enemy(s_enemy_ship,
+#                   s_explosion,
+#                   enemy_group,
+#                   (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
+#                   speed)
 
-    for i in range(count):
-        if random.randint(1, q) == 2:
+
+def generate_enemies(count: int, q: int, speed: int = 3):
+    points = characters_generator(count, q, (100, 100))
+
+    for point in points:
+        if point[2] == "m":
             Meteorite(s_meteorite,
                       enemy_group,
-                      (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
+                      (point[0], point[1]),
                       speed)
         else:
             Enemy(s_enemy_ship,
                   s_explosion,
                   enemy_group,
-                  (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
+                  (point[0], point[1]),
                   speed)
 
 
