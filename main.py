@@ -92,13 +92,16 @@ def set_boss_hp(current: int, max: int):
 
 
 pygame.mixer.music.load(mp3_start_sound)
-pygame.mixer.music.play(start=0.6, loops=-1)
+if not NO_SOUND:
+    pygame.mixer.music.play(start=0.6, loops=-1)
 screen_start(TITLE_TEXT, screen, clock, FPS)
-pygame.mixer.music.stop()
+if not NO_SOUND:
+    pygame.mixer.music.stop()
 
 pygame.mixer.music.load(mp3_background)
 pygame.mixer.music.set_volume(0.5)
-pygame.mixer.music.play(loops=-1)
+if not NO_SOUND:
+    pygame.mixer.music.play(loops=-1)
 
 # Groups
 player_group = pygame.sprite.Group()
@@ -179,10 +182,12 @@ def load_level(lvl: Level):
                 if e.key == pygame.K_p:
                     if status == G_STATUS_PLAYING:
                         status = G_STATUS_PAUSE
-                        pygame.mixer.music.pause()
+                        if not NO_SOUND:
+                            pygame.mixer.music.pause()
                     elif status == G_STATUS_PAUSE:
                         status = G_STATUS_PLAYING
-                        pygame.mixer.music.unpause()
+                        if not NO_SOUND:
+                            pygame.mixer.music.unpause()
 
             if status == G_STATUS_GAMEOVER or status == G_STATUS_WIN:
                 if e.type == pygame.KEYDOWN and e.key == 13:
@@ -191,7 +196,8 @@ def load_level(lvl: Level):
             if status == G_STATUS_PLAYING:
                 if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
                     Laser(s_laser, laser_group, player.rect)
-                    wav_laser.play()
+                    if not NO_SOUND:
+                        wav_laser.play()
 
         if status == G_STATUS_PAUSE:
             screen.blit(background, (0, 0))
@@ -244,7 +250,8 @@ def load_level(lvl: Level):
                     player.crash()
                     if type(enemy).__name__ != "Meteorite":
                         enemy.crash()
-                    wav_explosion.play()
+                    if not NO_SOUND:
+                        wav_explosion.play()
                     status = G_STATUS_GAMEOVER
 
             if lvl.is_boss_level:
@@ -253,15 +260,18 @@ def load_level(lvl: Level):
                         if pygame.sprite.collide_mask(laser, boss):
                             laser.kill()
                             boss.kick()
-                            wav_boss_kick.play()
+                            if not NO_SOUND:
+                                wav_boss_kick.play()
 
                     if pygame.sprite.collide_mask(player, boss):
                         player.crash()
-                        wav_explosion.play()
+                        if not NO_SOUND:
+                            wav_explosion.play()
                         status = G_STATUS_GAMEOVER
                 if boss.hp == 0:
                     boss.kill()
-                    wav_explosion_boss.play()
+                    if not NO_SOUND:
+                        wav_explosion_boss.play()
                     SCORE += 100
                     boss.hp = -1
 
@@ -290,7 +300,8 @@ def load_level(lvl: Level):
 
                 for blackhole in blackhole_group:
                     if pygame.sprite.collide_mask(player, blackhole):
-                        wav_teleportation.play()
+                        if not NO_SOUND:
+                            wav_teleportation.play()
                         return
 
         if -1 < slider_pos_x < 800:
@@ -308,10 +319,11 @@ level_count = 0
 for level in levels:
     Blackhole(s_blackhole, blackhole_group)
     if level.is_boss_level:
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(mp3_boss_sound)
-        pygame.mixer.music.set_volume(0.6)
-        pygame.mixer.music.play(-1)
+        if not NO_SOUND:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(mp3_boss_sound)
+            pygame.mixer.music.set_volume(0.6)
+            pygame.mixer.music.play(-1)
     load_level(level)
 
     # Closing level
@@ -326,9 +338,9 @@ for level in levels:
 
 if status == G_STATUS_WIN:
     level_count = 6
-
-pygame.mixer.music.load(mp3_start_sound)
-pygame.mixer.music.play(start=0.6, loops=-1)
+if not NO_SOUND:
+    pygame.mixer.music.load(mp3_start_sound)
+    pygame.mixer.music.play(start=0.6, loops=-1)
 score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
 
 pygame.quit()
