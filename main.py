@@ -1,4 +1,5 @@
 import random
+import pygame
 from defines import *
 from includes import *
 from characters_generator import characters_generator
@@ -24,6 +25,7 @@ random.shuffle(IMAGE_MAPS)
 clock = pygame.time.Clock()
 SCORE = 0
 
+pygame.mixer.init()
 # Sound files
 wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
 wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
@@ -91,8 +93,8 @@ def set_boss_hp(current: int, max: int):
     screen.blit(pause_text, pt_rect)
 
 
-pygame.mixer.music.load(mp3_start_sound)
 if not NO_SOUND:
+    pygame.mixer.music.load(mp3_start_sound)
     pygame.mixer.music.play(start=0.6, loops=-1)
 screen_start(TITLE_TEXT, screen, clock, FPS)
 if not NO_SOUND:
