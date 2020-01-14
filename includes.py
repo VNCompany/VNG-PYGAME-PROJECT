@@ -73,3 +73,16 @@ def score_screen(text: list, screen, clock, fps, score, level_count):
                 pass
         pygame.display.flip()
         clock.tick(fps)
+
+
+def load_indicator():
+    full_image = load_image("sprites/indicator.png")
+
+    values = [10, 20, 30, 50, 60, 80, 100]
+
+    indicator_dict = {}
+
+    for i in range(7):
+        sub_image = full_image.subsurface(pygame.Rect((41 * i, 0), (41, 6)))
+        indicator_dict[values[i]] = sub_image
+    return indicator_dict
