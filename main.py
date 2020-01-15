@@ -2,6 +2,7 @@ import random
 from defines import *
 from includes import *
 from characters_generator import characters_generator
+from ini_worker import INI
 
 from objects.win_and_lose import ResScreen
 from objects.level import Level
@@ -9,7 +10,7 @@ from objects.boss_explosion import BossExplosion
 
 from objects.ship import Ship
 from objects.laser import Laser
-from objects.enemy import Enemy, Indicator
+from objects.enemy import Enemy
 from objects.meteorite import Meteorite
 from objects.blackhole import Blackhole
 from objects.boss import Boss
@@ -59,14 +60,23 @@ s_explosion = load_image("sprites/explosion.png")
 s_blackhole = load_image("sprites/blackhole.png")
 
 # Levels
-levels = [
-    Level(1, IMAGE_MAPS[0], 11, 10, False),
-    Level(2, IMAGE_MAPS[1], 5, 20, False),
-    Level(3, IMAGE_MAPS[2], 4, 25, False),
-    Level(4, IMAGE_MAPS[3], 4, 30, False),
-    Level(5, IMAGE_MAPS[4], 3, 40, False, 4),
-    Level(6, BOSS_MAP, 3, 50, True, 4)
-]
+levels = []
+ini_levels = INI.ini_parse("levels/levels_default.ini")
+
+
+for i, section in enumerate(ini_levels.get_sections()):
+    i_m_prob = float(ini_levels.get(section, "m_prob"))
+    i_enemy_count = int(ini_levels.get(section, "enemy_count"))
+    i_enemy_speeds = list(ini_levels.get(section, "enemy_speeds"))
+    i_enemy_healths = list(ini_levels.get(section, "enemy_healths"))
+    i_is_boss_level = ini_levels.get(section, "is_boss_level") == "1"
+    levels.append(Level(i + 1,
+                        IMAGE_MAPS[i] if not i_is_boss_level else BOSS_MAP,
+                        i_m_prob,
+                        i_enemy_count,
+                        i_is_boss_level,
+                        [int(v) for v in i_enemy_speeds],
+                        i_enemy_healths))
 
 if len(sys.argv) == 2:
     levels = list(filter(lambda t: str(t.id) == str(sys.argv[1]), levels))
@@ -143,23 +153,33 @@ boss_explosion_group = pygame.sprite.Group()
 #                   speed)
 
 
-def generate_enemies(count: int, q: int, speed: int = 3):
-    points = characters_generator(count, q, (100, 100))
+def generate_enemies(count: int, m_prob: float, healths: list, speeds: list):
+    points = characters_generator(count, m_prob, (101, 101))
 
     for point in points:
+        if len(speeds) == 0:
+            speeds.append(3)
         if point[2] == "m":
             Meteorite(s_meteorite,
                       enemy_group,
                       (point[0], point[1]),
-                      speed)
+                      random.choice(speeds))
         else:
+            if len(healths) == 0:
+                healths.append("1:1")
+            healths_ints = [int(h.split(":")[0]) for h in healths]
+            c = 0
+            if len(healths_ints) > 1:
+                c = random.randrange(0, len(healths_ints))
+            health, score = [int(v) for v in healths[c].split(":")]
             Enemy(s_enemy_ship,
                   s_explosion,
                   enemy_group,
                   (point[0], point[1]),
                   INDICATOR,
-                  speed,
-                  2)
+                  random.choice(speeds),
+                  health,
+                  score)
 
 
 status = G_STATUS_PLAYING
@@ -167,7 +187,7 @@ status = G_STATUS_PLAYING
 
 def load_level(lvl: Level):
     global status, SCORE
-    generate_enemies(lvl.enemy, lvl.quality, lvl.enemy_speed)
+    generate_enemies(lvl.enemy, lvl.m_prob, lvl.enemy_healths, lvl.enemy_speeds)
     slider_pos_x = 0
     status = G_STATUS_STOPPED
 

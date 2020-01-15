@@ -67,7 +67,7 @@ class IRect:
         return False
 
 
-def characters_generator(count: int, q: int, size: tuple, add_width: int = 300):
+def characters_generator(count: int, m_probability: float, size: tuple, add_width: int = 300):
     points = []
 
     min_width = 950
@@ -88,11 +88,16 @@ def characters_generator(count: int, q: int, size: tuple, add_width: int = 300):
                     break
 
             if not not_valid:
-                if q_counter == q:
-                    q_counter = 0
+                m_p = int(m_probability * 100)
+                if m_p <= 0:
+                    rect.Name = "e"
+                elif m_p > 98:
                     rect.Name = "m"
                 else:
-                    rect.Name = "e"
-                    q_counter += 1
+                    rnd = random.randrange(m_p, 101)
+                    if rnd == m_p:
+                        rect.Name = "m"
+                    else:
+                        rect.Name = "e"
                 points.append(rect.get_tuple())
     return points

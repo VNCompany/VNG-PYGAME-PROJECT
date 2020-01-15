@@ -8,17 +8,26 @@ class INI:
 
         section = "Default"
         for line in lines:
-            search = re.search(r"\[(.+)\]", line)
-            if search is not None:
-                section = search.group(1)
-
             if line != "":
+                search = re.search(r"\[(.+)\]", line)
+                if search is not None:
+                    clear_line = str(line).strip().replace("\n", "")
+                    if (len(clear_line) > 2 and
+                            clear_line[0] == "[" and
+                            clear_line[-1] == "]"):
+                        section = search.group(1)
+
                 search = re.search(r"(.+?)=(.*)", line)
                 if search is not None:
+                    search_2 = re.search(r"\[(.+)\]", search.group(2))
+                    value = search.group(2)
+                    if search_2 is not None:
+                        value = search_2.group(1).split(";")
+
                     if section in self.data.keys():
-                        self.data[section].append((search.group(1), search.group(2)))
+                        self.data[section].append((search.group(1), value))
                     else:
-                        self.data[section] = [(search.group(1), search.group(2))]
+                        self.data[section] = [(search.group(1), value)]
 
     @staticmethod
     def ini_parse(filename: str):
