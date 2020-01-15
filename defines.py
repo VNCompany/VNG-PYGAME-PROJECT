@@ -1,6 +1,6 @@
 SIZE = WIDTH, HEIGHT = 800, 500
 FPS = 60
-WINDOW_TITLE = "Game - Space"
+WINDOW_TITLE = "Warspace"
 SOUND = False
 
 G_STATUS_PLAYING = 0
@@ -45,4 +45,11 @@ EXPLOSION_IMAGE_LIST = [
     "sprites/explosion_animation/10.png",
     "sprites/explosion_animation/11.png",
     "sprites/explosion_animation/12.png"
+]
+
+LEVELS_LIST = [
+    "levels/levels_easy.ini",
+    "levels/levels_normal.ini",
+    "levels/levels_hard.ini",
+    "levels/levels_infinity.ini"
 ]

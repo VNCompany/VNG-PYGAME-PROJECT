@@ -86,3 +86,16 @@ def load_indicator():
         sub_image = full_image.subsurface(pygame.Rect((41 * i, 0), (41, 6)))
         indicator_dict[values[i]] = sub_image
     return indicator_dict
+
+
+def load_sound_icons():
+    full_image = load_image("sprites/sound.png")
+
+    img1 = full_image.subsurface(pygame.Rect(0, 0, 46, 28))
+    img2 = full_image.subsurface(pygame.Rect(48, 0, 46, 28))
+
+    return img1, img2
+
+
+def mouse_in_rect(mouse_xy: tuple, rect: pygame.Rect):
+    return rect.collidepoint(mouse_xy[0], mouse_xy[1])

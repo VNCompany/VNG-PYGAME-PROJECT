@@ -11,5 +11,7 @@ class Level:
         self.m_prob = m_prob
         self.enemy = enemy
         self.is_boss_level = is_boss_level
+        self.boss_hp = 150
         self.enemy_speeds = enemy_speeds
         self.enemy_healths = enemy_healths
+        self.infinity = False
