@@ -83,7 +83,7 @@ def set_score(score: int):
     font = pygame.font.Font(None, 30)
     pause_text = font.render("Score: " + str(score), 1, (255, 255, 0))
     pt_rect = pause_text.get_rect()
-    pt_rect.x = 690
+    pt_rect.x = 640
     pt_rect.y = 3
     screen.blit(pause_text, pt_rect)
 
