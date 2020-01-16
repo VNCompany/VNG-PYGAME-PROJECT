@@ -10,7 +10,7 @@ from objects.level import Level
 from objects.boss_explosion import BossExplosion
 
 from objects.ship import Ship
-from objects.laser import Laser
+from objects.laser import Laser, EnemyLaser
 from objects.enemy import Enemy
 from objects.meteorite import Meteorite
 from objects.blackhole import Blackhole
@@ -26,6 +26,7 @@ random.shuffle(IMAGE_MAPS)
 clock = pygame.time.Clock()
 SCORE = 0
 EVENT_TIMER_INFINITY = pygame.USEREVENT + 1
+EVENT_TIMER_BOSSFIRE = EVENT_TIMER_INFINITY + 1
 
 INDICATOR = load_indicator()
 
@@ -68,6 +69,7 @@ s_boss_ship = load_image("sprites/spaceship3.png")
 s_meteorite = load_image("sprites/meteorite.png")
 
 s_laser = pygame.transform.scale(load_image("sprites/laser.png"), (50, 10))
+s_blue_laser = pygame.transform.scale(load_image("sprites/blue_laser.png"), (105, 25))
 s_explosion = load_image("sprites/explosion.png")
 s_blackhole = load_image("sprites/blackhole.png")
 
@@ -174,8 +176,11 @@ for i, section in enumerate(ini_levels.get_sections()):
 
     if i_is_boss_level:
         val = ini_levels.get(section, "boss_hp")
+        i_boss_fire_ms = ini_levels.get(section, "boss_fire_ms")
         if val is not None:
             lvl.boss_hp = int(val)
+        if i_boss_fire_ms is not None:
+            lvl.boss_fire_ms = int(i_boss_fire_ms)
     levels.append(lvl)
 
 if len(sys.argv) == 2:
@@ -201,6 +206,7 @@ blackhole_group = pygame.sprite.Group()
 
 boss_group = pygame.sprite.Group()
 boss_explosion_group = pygame.sprite.Group()
+boss_laser_group = pygame.sprite.Group()
 
 
 # def generate_enemies(count: int, q: int, speed=3):
@@ -281,6 +287,8 @@ def load_level(lvl: Level):
 
     if lvl.infinity:
         pygame.time.set_timer(EVENT_TIMER_INFINITY, 21000)
+    if lvl.is_boss_level:
+        pygame.time.set_timer(EVENT_TIMER_BOSSFIRE, lvl.boss_fire_ms)
 
     running = True
     while running:
@@ -304,6 +312,10 @@ def load_level(lvl: Level):
                             pygame.mixer.music.unpause()
             if e.type == EVENT_TIMER_INFINITY:
                 generate_enemies(lvl.enemy, lvl.m_prob, lvl.enemy_healths, lvl.enemy_speeds)
+            if e.type == EVENT_TIMER_BOSSFIRE and lvl.is_boss_level and boss.hp > 0:
+                EnemyLaser(s_blue_laser, boss_laser_group, boss.rect)
+                if SOUND:
+                    wav_laser.play()
 
             if status == G_STATUS_GAMEOVER or status == G_STATUS_WIN:
                 if e.type == pygame.KEYDOWN and e.key == 13:
@@ -341,9 +353,10 @@ def load_level(lvl: Level):
         screen.blit(load_image(lvl.image), (0, 0))
 
         # Drawing elements
-        player_group.draw(screen)
         laser_group.draw(screen)
+        player_group.draw(screen)
         enemy_group.draw(screen)
+        boss_laser_group.draw(screen)
         if lvl.is_boss_level:
             boss_group.draw(screen)
 
@@ -351,6 +364,7 @@ def load_level(lvl: Level):
         if status == G_STATUS_PLAYING:
             enemy_group.update()
             laser_group.update()
+            boss_laser_group.update()
             if lvl.is_boss_level:
                 boss_group.update()
 
@@ -374,6 +388,11 @@ def load_level(lvl: Level):
             if lvl.is_boss_level:
                 if boss.hp > 0:
                     for laser in laser_group:
+                        for boss_laser in boss_laser_group:
+                            if pygame.sprite.collide_mask(laser, boss_laser):
+                                laser.kill()
+                                boss_laser.kill()
+
                         if pygame.sprite.collide_mask(laser, boss):
                             laser.kill()
                             laser_y = laser.rect.y
@@ -382,6 +401,13 @@ def load_level(lvl: Level):
                                 boss.kick()
                                 if SOUND:
                                     wav_boss_kick.play()
+
+                    for boss_laser in boss_laser_group:
+                        if pygame.sprite.collide_mask(boss_laser, player):
+                            player.crash()
+                            if SOUND:
+                                wav_explosion.play()
+                            status = G_STATUS_GAMEOVER
 
                     if pygame.sprite.collide_mask(player, boss):
                         player.crash()
@@ -408,6 +434,7 @@ def load_level(lvl: Level):
         if status == G_STATUS_GAMEOVER:
             if lvl.infinity:
                 pygame.time.set_timer(EVENT_TIMER_INFINITY, 0)
+                pygame.time.set_timer(EVENT_TIMER_BOSSFIRE, 0)
             set_lose()
         elif status == G_STATUS_WIN:
             set_win()

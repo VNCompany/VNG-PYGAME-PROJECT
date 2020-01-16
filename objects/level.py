@@ -15,3 +15,4 @@ class Level:
         self.enemy_speeds = enemy_speeds
         self.enemy_healths = enemy_healths
         self.infinity = False
+        self.boss_fire_ms = 0
