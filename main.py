@@ -58,7 +58,12 @@ main_manu_background = load_image("images/main_menu.png")
 
 # Sprites
 s_ship = load_image("sprites/spaceship1.png")
-s_enemy_ship = load_image("sprites/spaceship2.png")
+s_enemy_ships = [
+    load_image("sprites/spaceship2.png"),
+    load_image("sprites/spaceship2.2.png"),
+    load_image("sprites/spaceship2.3.png"),
+    load_image("sprites/spaceship2.4.png")
+]
 s_boss_ship = load_image("sprites/spaceship3.png")
 s_meteorite = load_image("sprites/meteorite.png")
 
@@ -235,6 +240,18 @@ def generate_enemies(count: int, m_prob: float, healths: list, speeds: list):
             if len(healths_ints) > 1:
                 c = random.randrange(0, len(healths_ints))
             health, score = [int(v) for v in healths[c].split(":")]
+
+            if health == 1:
+                s_enemy_ship = s_enemy_ships[0]
+            elif health == 2:
+                s_enemy_ship = s_enemy_ships[1]
+            elif health == 3:
+                s_enemy_ship = s_enemy_ships[2]
+            elif health >= 4:
+                s_enemy_ship = s_enemy_ships[3]
+            else:
+                s_enemy_ship = s_enemy_ships[0]
+
             Enemy(s_enemy_ship,
                   s_explosion,
                   enemy_group,
