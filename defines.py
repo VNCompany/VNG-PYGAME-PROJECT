@@ -1,13 +1,25 @@
-SIZE = WIDTH, HEIGHT = 800, 500
-FPS = 60
-WINDOW_TITLE = "Warspace"
-SOUND = False
+import ini_worker
 
+# Config
+cfg = ini_worker.INI.ini_parse("config.ini")
+
+# Constants
 G_STATUS_PLAYING = 0
 G_STATUS_PAUSE = 1
 G_STATUS_WIN = 2
 G_STATUS_GAMEOVER = 3
 G_STATUS_STOPPED = 4
+
+GENERATION_MOD_OLD = 0
+GENERATION_MOD_NEW = 1
+
+# Parameters
+SIZE = WIDTH, HEIGHT = 800, 500
+FPS = int(cfg.get("Default", "fps"))
+WINDOW_TITLE = "Warspace"
+SOUND = int(cfg.get("Default", "sound")) == 1
+
+GENERATION_MOD = int(cfg.get("Default", "generation_mod"))
 
 TITLE_TEXT = ["--------------------- Control ---------------------",
               "     Keyboard arrows - moving",

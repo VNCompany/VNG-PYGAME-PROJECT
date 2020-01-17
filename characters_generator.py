@@ -1,4 +1,5 @@
 import random
+import time
 
 
 class IRect:
@@ -67,13 +68,12 @@ class IRect:
         return False
 
 
-def characters_generator(count: int, m_probability: float, size: tuple, add_width: int = 300):
+def characters_generator_old(count: int, m_probability: float, size: tuple, add_width: int = 300):
     points = []
 
     min_width = 950
     width = (count * size[0] * size[1]) // 500 + add_width + 902 + min_width
 
-    q_counter = 0
     for i in range(count):
         not_valid = True
         while not_valid:
@@ -100,4 +100,52 @@ def characters_generator(count: int, m_probability: float, size: tuple, add_widt
                     else:
                         rect.Name = "e"
                 points.append(rect.get_tuple())
+    return points
+
+
+def characters_generator(count: int, m_probability: float, size: tuple, add_width: int = 0):
+    start_x_pos = 950
+    width = count * size[0] // 2
+    cols = width // size[0]
+    rows = 5
+    m_p = int(m_probability * 100)
+
+    field = []
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            row.append(0)
+        field.append(row)
+
+    points = []
+    for i in range(count):
+        while True:
+            r = random.randrange(0, rows)
+            c = random.randrange(0, cols)
+            if field[r][c] == 0:
+                # Meteorite generation
+                if m_p <= 0:
+                    name = 1
+                elif m_p > 98:
+                    name = 2
+                else:
+                    rnd = random.randrange(m_p, 101)
+                    if rnd == m_p:
+                        name = 2
+                    else:
+                        name = 1
+                field[r][c] = name
+                break
+
+    random.shuffle(field)
+    for r in field:
+        random.shuffle(r)
+
+    for i in range(len(field)):
+        for j in range(len(field[i])):
+            if field[i][j] > 0:
+                name = "e" if field[i][j] == 1 else "m"
+                pos_x = start_x_pos + (j * size[0])
+                pos_y = i * size[1]
+                points.append((pos_x, pos_y, name))
     return points

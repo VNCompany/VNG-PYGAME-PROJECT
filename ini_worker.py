@@ -40,9 +40,9 @@ class INI:
 
     @staticmethod
     def ini_parse_text(text: str):
-        INI(text.split("\n"))
+        return INI(text.split("\n"))
 
-    def get(self, section: str, item: str):
+    def get(self, section, item: str):
         if section in self.data.keys():
             for key, value in self.data[section]:
                 if key == item:
@@ -54,3 +54,30 @@ class INI:
 
     def get_sections(self):
         return list(self.data.keys())
+
+    def item_exists(self, section: str, item: str):
+        return self.get(section, item)
+
+    def set(self, section: str, item: str, value):
+        if type(value) is list:
+            value = "[" + ";".join(value) + "]"
+        elif type(value) is bool:
+            value = "1" if bool(value) else "0"
+        else:
+            value = str(value)
+
+        if self.item_exists(section, item):
+            for i in range(len(self.data[section])):
+                if self.data[section][i][0] == item:
+                    self.data[section][i] = (self.data[section][i][0], value)
+        elif self.section_exists(section):
+            self.data[section].append((item, value))
+        else:
+            self.data[section] = [(item, value)]
+
+    def save(self, filename):
+        with open(filename, mode="w", encoding="utf-8") as f:
+            for section in self.data.keys():
+                f.write("[" + section + "]" + "\n")
+                for item, value in self.data[section]:
+                    f.write(item + "=" + value + "\n")

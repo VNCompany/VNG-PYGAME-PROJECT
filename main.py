@@ -2,7 +2,7 @@ import random
 import pygame
 from defines import *
 from includes import *
-from characters_generator import characters_generator
+from characters_generator import characters_generator, characters_generator_old
 from ini_worker import INI
 
 from objects.win_and_lose import ResScreen
@@ -39,7 +39,9 @@ mp3_boss_sound = "data/sound/boss_sound_01.mp3"
 win_scr = ResScreen(load_image("sprites/bg_win.jpg"), 28)
 lose_scr = ResScreen(load_image("sprites/bg_lose.jpg"))
 background = load_image("images/background.jpg")
-main_manu_background = load_image("images/main_menu.png")
+main_menu_background = load_image("images/main_menu.png")
+main_menu_r_background = load_image("images/main_menu_grandom.png")
+main_menu_t_background = load_image("images/main_menu_gtable.png")
 
 # Sprites
 s_ship = load_image("sprites/spaceship1.png")
@@ -100,6 +102,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.mixer.music.stop()
+            cfg.set("Default", "fps", FPS)
+            cfg.set("Default", "sound", SOUND)
+            cfg.set("Default", "generation_mod", GENERATION_MOD)
+            cfg.save("config.ini")
             terminate()
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -112,10 +118,16 @@ while running:
                     if not SOUND:
                         pygame.mixer.music.pause()
                     else:
+                        if not pygame.mixer.music.get_busy():
+                            pygame.mixer.music.load(mp3_start_sound)
+                            pygame.mixer.music.play(start=0.6, loops=-1)
                         pygame.mixer.music.unpause()
                 except:
                     SOUND = False
                     print("У вас проблемы с аудио системой!")
+            if mouse_in_rect(event.pos, pygame.Rect(211, 470, 68, 19)):
+                GENERATION_MOD = 1 if GENERATION_MOD == 0 else 0
+
             #  Easy
             elif mouse_in_rect(event.pos, pygame.Rect(285, 232, 230, 36)):
                 running = False
@@ -135,7 +147,10 @@ while running:
                 selected_levels = LEVELS_LIST[3]
                 running = False
 
-    screen.blit(main_manu_background, (0, 0))
+    if GENERATION_MOD == GENERATION_MOD_NEW:
+        screen.blit(main_menu_t_background, (0, 0))
+    else:
+        screen.blit(main_menu_r_background, (0, 0))
     screen.blit(s_sound_icons[0] if SOUND else s_sound_icons[1], (736, 15))
 
     pygame.display.flip()
@@ -234,7 +249,10 @@ boss_laser_group = pygame.sprite.Group()
 
 
 def generate_enemies(count: int, m_prob: float, healths: list, speeds: list):
-    points = characters_generator(count, m_prob, (101, 101))
+    if GENERATION_MOD == GENERATION_MOD_NEW:
+        points = characters_generator(count, m_prob, (101, 101))
+    else:
+        points = characters_generator_old(count, m_prob, (101, 101))
 
     for point in points:
         if len(speeds) == 0:
@@ -302,6 +320,10 @@ def load_level(lvl: Level):
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
+                cfg.set("Default", "fps", FPS)
+                cfg.set("Default", "sound", SOUND)
+                cfg.set("Default", "generation_mod", GENERATION_MOD)
+                cfg.save("config.ini")
                 terminate()
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
@@ -502,3 +524,7 @@ if SOUND:
 score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
 
 pygame.quit()
+cfg.set("Default", "fps", FPS)
+cfg.set("Default", "sound", SOUND)
+cfg.set("Default", "generation_mod", GENERATION_MOD)
+cfg.save("config.ini")
