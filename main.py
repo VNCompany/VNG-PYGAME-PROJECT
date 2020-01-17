@@ -434,7 +434,7 @@ def load_level(lvl: Level):
         if status == G_STATUS_GAMEOVER:
             if lvl.infinity:
                 pygame.time.set_timer(EVENT_TIMER_INFINITY, 0)
-                pygame.time.set_timer(EVENT_TIMER_BOSSFIRE, 0)
+            pygame.time.set_timer(EVENT_TIMER_BOSSFIRE, 0)
             set_lose()
         elif status == G_STATUS_WIN:
             set_win()
