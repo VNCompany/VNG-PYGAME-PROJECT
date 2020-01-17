@@ -30,23 +30,7 @@ EVENT_TIMER_BOSSFIRE = EVENT_TIMER_INFINITY + 1
 
 INDICATOR = load_indicator()
 
-# Sound files
-if SOUND:
-    wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
-    wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
-    wav_laser = pygame.mixer.Sound("data/sound/laser.wav")
-    wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
-    wav_boss_kick = pygame.mixer.Sound("data/sound/boss_kick.wav")
-
-    wav_laser.set_volume(0.5)
-    wav_teleportation.set_volume(0.7)
-    wav_boss_kick.set_volume(0.5)
-else:
-    wav_explosion = None
-    wav_explosion_boss = None
-    wav_laser = None
-    wav_teleportation = None
-    wav_boss_kick = None
+# Sound sources
 mp3_start_sound = "data/sound/start_sound.mp3"
 mp3_background = "data/sound/background.mp3"
 mp3_boss_sound = "data/sound/boss_sound_01.mp3"
@@ -124,10 +108,14 @@ while running:
 
             if mouse_in_rect(event.pos, pygame.Rect(sound_image_pos)):
                 SOUND = not SOUND
-                if not SOUND:
-                    pygame.mixer.music.pause()
-                else:
-                    pygame.mixer.music.unpause()
+                try:
+                    if not SOUND:
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                except:
+                    SOUND = False
+                    print("У вас проблемы с аудио системой!")
             #  Easy
             elif mouse_in_rect(event.pos, pygame.Rect(285, 232, 230, 36)):
                 running = False
@@ -152,6 +140,24 @@ while running:
 
     pygame.display.flip()
     clock.tick(FPS)
+
+# Sound files
+if SOUND:
+    wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
+    wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
+    wav_laser = pygame.mixer.Sound("data/sound/laser.wav")
+    wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
+    wav_boss_kick = pygame.mixer.Sound("data/sound/boss_kick.wav")
+
+    wav_laser.set_volume(0.5)
+    wav_teleportation.set_volume(0.7)
+    wav_boss_kick.set_volume(0.5)
+else:
+    wav_explosion = None
+    wav_explosion_boss = None
+    wav_laser = None
+    wav_teleportation = None
+    wav_boss_kick = None
 
 # Levels
 levels = []
