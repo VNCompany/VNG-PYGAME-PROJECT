@@ -8,6 +8,7 @@ from ini_worker import INI
 from objects.win_and_lose import ResScreen
 from objects.level import Level
 from objects.boss_explosion import BossExplosion
+from objects.infinity_worker import Infinity
 
 from objects.ship import Ship
 from objects.laser import Laser, EnemyLaser
@@ -158,11 +159,13 @@ def load_level(lvl: Level):
         b_explosion = BossExplosion([load_image(img) for img in EXPLOSION_IMAGE_LIST],
                                     boss_explosion_group, (boss.rect.x, boss.rect.y))
 
+    infinity = None
+    counter = 21000
     if lvl.infinity:
-        pygame.time.set_timer(EVENT_TIMER_INFINITY, 21000)
+        pygame.time.set_timer(EVENT_TIMER_INFINITY, counter)
+        infinity = Infinity(lvl.enemy_speeds, lvl.enemy_healths, lvl.enemy)
     if lvl.is_boss_level:
         pygame.time.set_timer(EVENT_TIMER_BOSSFIRE, lvl.boss_fire_ms)
-
     running = True
     while running:
         pressed = pygame.key.get_pressed()
@@ -188,6 +191,10 @@ def load_level(lvl: Level):
                         if SOUND:
                             pygame.mixer.music.unpause()
             if e.type == EVENT_TIMER_INFINITY:
+                if infinity.add_enemy_c == infinity.add_enemy_k:
+                    counter += 2000
+                infinity.update()
+                lvl.enemy = infinity.enemy_count
                 generate_enemies(lvl.enemy, lvl.m_prob, lvl.enemy_healths, lvl.enemy_speeds)
             if e.type == EVENT_TIMER_BOSSFIRE and lvl.is_boss_level and boss.hp > 0:
                 EnemyLaser(s_blue_laser, boss_laser_group, boss.rect)
