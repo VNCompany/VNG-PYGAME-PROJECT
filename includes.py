@@ -26,14 +26,14 @@ def load_image(name, colorkey=None):
 def screen_start(text: list, screen, clock, fps):
     bg = load_image("images/background.jpg")
     screen.blit(bg, (0, 0))
-    font = pygame.font.Font(None, 35)
-    txt_pos = 140
+    font = pygame.font.Font("data/fonts/impact.ttf", 35)
+    txt_pos = 100
     for string in text:
         s = font.render(string, 1, (255, 255, 0))
         s_rect = s.get_rect()
-        txt_pos += 15
+        txt_pos += 10
         s_rect.y = txt_pos
-        s_rect.x = 170
+        s_rect.x = 116
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
@@ -49,21 +49,31 @@ def screen_start(text: list, screen, clock, fps):
 
 
 def score_screen(text: list, screen, clock, fps, score, level_count):
-    bg = load_image("images/background.jpg")
+    close_status = 1
+    bg = load_image("images/score.png")
     screen.blit(bg, (0, 0))
-    font = pygame.font.Font(None, 35)
-    txt_pos = 170
-    for string in text:
-        s = font.render(string.replace("{0}", score).replace("{1}", level_count),
+    font = pygame.font.Font("data/fonts/RobotoMono.ttf", 35)
+    txt_pos = 90
+    text.sort(reverse=True)
+    if len(text) > 7:
+        text = text[:7]
+    for i, string in enumerate(text):
+        string = str(string)
+        dots = "............."
+        if len(string) + 1 < 21:
+            dots = '.' * (21 - (len(string) + 1))
+        res = str(i + 1) + dots + string
+        s = font.render(res,
                         1, (255, 255, 0))
         s_rect = s.get_rect()
-        txt_pos += 15
+        txt_pos += 2
         s_rect.y = txt_pos
-        s_rect.x = 200
+        s_rect.x = 178
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 try:
@@ -71,11 +81,16 @@ def score_screen(text: list, screen, clock, fps, score, level_count):
                 except:
                     print("У вас проблемы с аудио системой.")
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if mouse_in_rect(event.pos, pygame.Rect(529, 435, 57, 42)):
+                    close_status = 1
+                    running = False
+                elif mouse_in_rect(event.pos, pygame.Rect(209, 435, 158, 42)):
+                    close_status = 0
+                    running = False
         pygame.display.flip()
         clock.tick(fps)
+    return close_status
 
 
 def load_indicator():

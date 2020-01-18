@@ -25,6 +25,7 @@ random.shuffle(IMAGE_MAPS)
 
 clock = pygame.time.Clock()
 SCORE = 0
+SCORES = []
 EVENT_TIMER_INFINITY = pygame.USEREVENT + 1
 EVENT_TIMER_BOSSFIRE = EVENT_TIMER_INFINITY + 1
 
@@ -90,162 +91,13 @@ def set_boss_hp(current: int, max: int):
     screen.blit(pause_text, pt_rect)
 
 
-selected_levels = LEVELS_LIST[0]
-
-if SOUND:
-    pygame.mixer.music.load(mp3_start_sound)
-    pygame.mixer.music.play(start=0.6, loops=-1)
-
-# MAIN MENU
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.mixer.music.stop()
-            cfg.set("Default", "fps", FPS)
-            cfg.set("Default", "sound", SOUND)
-            cfg.set("Default", "generation_mod", GENERATION_MOD)
-            cfg.save("config.ini")
-            terminate()
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            sound_image_pos = s_sound_icons[0].get_rect()
-            sound_image_pos = (736, 15, sound_image_pos.width, sound_image_pos.height)
-
-            if mouse_in_rect(event.pos, pygame.Rect(sound_image_pos)):
-                SOUND = not SOUND
-                try:
-                    if not SOUND:
-                        pygame.mixer.music.pause()
-                    else:
-                        if not pygame.mixer.music.get_busy():
-                            pygame.mixer.music.load(mp3_start_sound)
-                            pygame.mixer.music.play(start=0.6, loops=-1)
-                        pygame.mixer.music.unpause()
-                except:
-                    SOUND = False
-                    print("У вас проблемы с аудио системой!")
-            if mouse_in_rect(event.pos, pygame.Rect(211, 470, 68, 19)):
-                GENERATION_MOD = 1 if GENERATION_MOD == 0 else 0
-
-            #  Easy
-            elif mouse_in_rect(event.pos, pygame.Rect(285, 232, 230, 36)):
-                running = False
-
-            #  Normal
-            elif mouse_in_rect(event.pos, pygame.Rect(285, 289, 230, 36)):
-                selected_levels = LEVELS_LIST[1]
-                running = False
-
-            #  Hard
-            elif mouse_in_rect(event.pos, pygame.Rect(285, 345, 230, 36)):
-                selected_levels = LEVELS_LIST[2]
-                running = False
-
-            #  Infinity
-            elif mouse_in_rect(event.pos, pygame.Rect(285, 400, 230, 36)):
-                selected_levels = LEVELS_LIST[3]
-                running = False
-
-    if GENERATION_MOD == GENERATION_MOD_NEW:
-        screen.blit(main_menu_t_background, (0, 0))
-    else:
-        screen.blit(main_menu_r_background, (0, 0))
-    screen.blit(s_sound_icons[0] if SOUND else s_sound_icons[1], (736, 15))
-
-    pygame.display.flip()
-    clock.tick(FPS)
-
-# Sound files
-if SOUND:
-    wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
-    wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
-    wav_laser = pygame.mixer.Sound("data/sound/laser.wav")
-    wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
-    wav_boss_kick = pygame.mixer.Sound("data/sound/boss_kick.wav")
-
-    wav_laser.set_volume(0.5)
-    wav_teleportation.set_volume(0.7)
-    wav_boss_kick.set_volume(0.5)
-else:
-    wav_explosion = None
-    wav_explosion_boss = None
-    wav_laser = None
-    wav_teleportation = None
-    wav_boss_kick = None
-
-# Levels
-levels = []
-ini_levels = INI.ini_parse(selected_levels)
-
-for i, section in enumerate(ini_levels.get_sections()):
-    i_m_prob = float(ini_levels.get(section, "m_prob"))
-    i_enemy_count = int(ini_levels.get(section, "enemy_count"))
-    i_enemy_speeds = list(ini_levels.get(section, "enemy_speeds"))
-    i_enemy_healths = list(ini_levels.get(section, "enemy_healths"))
-    i_is_boss_level = ini_levels.get(section, "is_boss_level") == "1"
-    lvl = Level(i + 1,
-                IMAGE_MAPS[i] if not i_is_boss_level else BOSS_MAP,
-                i_m_prob,
-                i_enemy_count,
-                i_is_boss_level,
-                [int(v) for v in i_enemy_speeds],
-                i_enemy_healths)
-
-    if section == "Infinity":
-        lvl.infinity = True
-
-    if i_is_boss_level:
-        val = ini_levels.get(section, "boss_hp")
-        i_boss_fire_ms = ini_levels.get(section, "boss_fire_ms")
-        if val is not None:
-            lvl.boss_hp = int(val)
-        if i_boss_fire_ms is not None:
-            lvl.boss_fire_ms = int(i_boss_fire_ms)
-    levels.append(lvl)
-
-if len(sys.argv) == 2:
-    levels = list(filter(lambda t: str(t.id) == str(sys.argv[1]), levels))
-
-screen_start(TITLE_TEXT, screen, clock, FPS)
-if SOUND:
-    pygame.mixer.music.stop()
-
-    pygame.mixer.music.load(mp3_background)
-    pygame.mixer.music.set_volume(0.5)
-    pygame.mixer.music.play(loops=-1)
-
-# Groups
-player_group = pygame.sprite.Group()
-player = Ship(s_ship, s_explosion, player_group)  # Main player
-
-laser_group = pygame.sprite.Group()
-
-enemy_group = pygame.sprite.Group()
-
-blackhole_group = pygame.sprite.Group()
-
-boss_group = pygame.sprite.Group()
-boss_explosion_group = pygame.sprite.Group()
-boss_laser_group = pygame.sprite.Group()
-
-
-# def generate_enemies(count: int, q: int, speed=3):
-#     start_pos = 800
-#     end_pos = 50 * count + start_pos
-#
-#     for i in range(count):
-#         if random.randint(1, q) == 2:
-#             Meteorite(s_meteorite,
-#                       enemy_group,
-#                       (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
-#                       speed)
-#         else:
-#             Enemy(s_enemy_ship,
-#                   s_explosion,
-#                   enemy_group,
-#                   (random.randrange(start_pos, end_pos), random.randrange(0, 395)),
-#                   speed)
+def set_level_name(name: str):
+    font = pygame.font.Font(None, 30)
+    txt = font.render("Level " + name, 1, (255, 255, 0))
+    tr = txt.get_rect()
+    pos_x = WIDTH - tr.width - 6
+    pos_y = HEIGHT - tr.height - 3
+    screen.blit(txt, (pos_x, pos_y))
 
 
 def generate_enemies(count: int, m_prob: float, healths: list, speeds: list):
@@ -290,9 +142,6 @@ def generate_enemies(count: int, m_prob: float, healths: list, speeds: list):
                   random.choice(speeds),
                   health,
                   score)
-
-
-status = G_STATUS_PLAYING
 
 
 def load_level(lvl: Level):
@@ -379,6 +228,7 @@ def load_level(lvl: Level):
                 player.transfer('right')
 
         screen.blit(load_image(lvl.image), (0, 0))
+        set_level_name(str(lvl.id))
 
         # Drawing elements
         laser_group.draw(screen)
@@ -494,37 +344,190 @@ def load_level(lvl: Level):
         clock.tick(FPS)
 
 
-level_count = 0
-for level in levels:
-    Blackhole(s_blackhole, blackhole_group)
-    if level.is_boss_level and SOUND:
+while True:
+    selected_levels = LEVELS_LIST[0]
+
+    if SOUND:
+        pygame.mixer.music.load(mp3_start_sound)
+        pygame.mixer.music.play(start=0.6, loops=-1)
+
+    # MAIN MENU
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
+                cfg.set("Default", "fps", FPS)
+                cfg.set("Default", "sound", SOUND)
+                cfg.set("Default", "generation_mod", GENERATION_MOD)
+                cfg.save("config.ini")
+                terminate()
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                sound_image_pos = s_sound_icons[0].get_rect()
+                sound_image_pos = (736, 15, sound_image_pos.width, sound_image_pos.height)
+
+                if mouse_in_rect(event.pos, pygame.Rect(sound_image_pos)):
+                    SOUND = not SOUND
+                    try:
+                        if not SOUND:
+                            pygame.mixer.music.pause()
+                        else:
+                            if not pygame.mixer.music.get_busy():
+                                pygame.mixer.music.load(mp3_start_sound)
+                                pygame.mixer.music.play(start=0.6, loops=-1)
+                            pygame.mixer.music.unpause()
+                    except:
+                        SOUND = False
+                        print("У вас проблемы с аудио системой!")
+                if mouse_in_rect(event.pos, pygame.Rect(211, 470, 68, 19)):
+                    GENERATION_MOD = 1 if GENERATION_MOD == 0 else 0
+                    print("y")
+
+                #  Easy
+                elif mouse_in_rect(event.pos, pygame.Rect(285, 232, 230, 36)):
+                    running = False
+
+                #  Normal
+                elif mouse_in_rect(event.pos, pygame.Rect(285, 289, 230, 36)):
+                    selected_levels = LEVELS_LIST[1]
+                    running = False
+
+                #  Hard
+                elif mouse_in_rect(event.pos, pygame.Rect(285, 345, 230, 36)):
+                    selected_levels = LEVELS_LIST[2]
+                    running = False
+
+                #  Infinity
+                elif mouse_in_rect(event.pos, pygame.Rect(285, 400, 230, 36)):
+                    selected_levels = LEVELS_LIST[3]
+                    running = False
+
+        if GENERATION_MOD == GENERATION_MOD_NEW:
+            screen.blit(main_menu_t_background, (0, 0))
+        else:
+            screen.blit(main_menu_r_background, (0, 0))
+        screen.blit(s_sound_icons[0] if SOUND else s_sound_icons[1], (736, 15))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    # Sound files
+    if SOUND:
+        wav_explosion = pygame.mixer.Sound("data/sound/explosion.wav")
+        wav_explosion_boss = pygame.mixer.Sound("data/sound/explosion_boss.wav")
+        wav_laser = pygame.mixer.Sound("data/sound/laser.wav")
+        wav_teleportation = pygame.mixer.Sound("data/sound/teleportation.wav")
+        wav_boss_kick = pygame.mixer.Sound("data/sound/boss_kick.wav")
+
+        wav_laser.set_volume(0.5)
+        wav_teleportation.set_volume(0.7)
+        wav_boss_kick.set_volume(0.5)
+    else:
+        wav_explosion = None
+        wav_explosion_boss = None
+        wav_laser = None
+        wav_teleportation = None
+        wav_boss_kick = None
+
+    # Levels
+    levels = []
+    ini_levels = INI.ini_parse(selected_levels)
+
+    for i, section in enumerate(ini_levels.get_sections()):
+        i_m_prob = float(ini_levels.get(section, "m_prob"))
+        i_enemy_count = int(ini_levels.get(section, "enemy_count"))
+        i_enemy_speeds = list(ini_levels.get(section, "enemy_speeds"))
+        i_enemy_healths = list(ini_levels.get(section, "enemy_healths"))
+        i_is_boss_level = ini_levels.get(section, "is_boss_level") == "1"
+        lvl = Level(i + 1,
+                    IMAGE_MAPS[i] if not i_is_boss_level else BOSS_MAP,
+                    i_m_prob,
+                    i_enemy_count,
+                    i_is_boss_level,
+                    [int(v) for v in i_enemy_speeds],
+                    i_enemy_healths)
+
+        if section == "Infinity":
+            lvl.infinity = True
+
+        if i_is_boss_level:
+            val = ini_levels.get(section, "boss_hp")
+            i_boss_fire_ms = ini_levels.get(section, "boss_fire_ms")
+            if val is not None:
+                lvl.boss_hp = int(val)
+            if i_boss_fire_ms is not None:
+                lvl.boss_fire_ms = int(i_boss_fire_ms)
+        levels.append(lvl)
+
+    if len(sys.argv) == 2:
+        levels = list(filter(lambda t: str(t.id) == str(sys.argv[1]), levels))
+
+    screen_start(TITLE_TEXT, screen, clock, FPS)
+    if SOUND:
         pygame.mixer.music.stop()
-        pygame.mixer.music.load(mp3_boss_sound)
-        pygame.mixer.music.set_volume(0.6)
-        pygame.mixer.music.play(-1)
-    load_level(level)
 
-    # Closing level
-    player.rect.x = 100
-    player.rect.y = 150
-    blackhole_group.empty()
+        pygame.mixer.music.load(mp3_background)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(loops=-1)
 
-    if status != G_STATUS_PLAYING:
-        level_count = level.id - 1
-        if SOUND:
+    # Groups
+    player_group = pygame.sprite.Group()
+    player = Ship(s_ship, s_explosion, player_group)  # Main player
+    laser_group = pygame.sprite.Group()
+    enemy_group = pygame.sprite.Group()
+    blackhole_group = pygame.sprite.Group()
+    boss_group = pygame.sprite.Group()
+    boss_explosion_group = pygame.sprite.Group()
+    boss_laser_group = pygame.sprite.Group()
+
+    status = G_STATUS_PLAYING
+    level_count = 0
+    for level in levels:
+        Blackhole(s_blackhole, blackhole_group)
+        if level.is_boss_level and SOUND:
             pygame.mixer.music.stop()
-        break
+            pygame.mixer.music.load(mp3_boss_sound)
+            pygame.mixer.music.set_volume(0.6)
+            pygame.mixer.music.play(-1)
+        load_level(level)
 
-if status == G_STATUS_WIN:
-    level_count = 6
+        # Closing level
+        player.rect.x = 100
+        player.rect.y = 150
+        blackhole_group.empty()
 
-if SOUND:
-    pygame.mixer.music.load(mp3_start_sound)
-    pygame.mixer.music.play(start=0.6, loops=-1)
-score_screen(SCORE_TEXT, screen, clock, FPS, str(SCORE), str(level_count))
+        if status != G_STATUS_PLAYING:
+            level_count = level.id - 1
+            if SOUND:
+                pygame.mixer.music.stop()
+            break
 
-pygame.quit()
-cfg.set("Default", "fps", FPS)
-cfg.set("Default", "sound", SOUND)
-cfg.set("Default", "generation_mod", GENERATION_MOD)
-cfg.save("config.ini")
+    if status == G_STATUS_WIN:
+        level_count = 6
+
+    if SOUND:
+        pygame.mixer.music.load(mp3_start_sound)
+        pygame.mixer.music.play(start=0.6, loops=-1)
+
+    SCORES.append(SCORE)
+    SCORE = 0
+    score_status = score_screen(SCORES, screen, clock, FPS, str(SCORE), str(level_count))
+    if score_status == SCORE_MAIN_MENU:
+        player_group.empty()
+        laser_group.empty()
+        enemy_group.empty()
+        blackhole_group.empty()
+        boss_group.empty()
+        boss_explosion_group.empty()
+        boss_laser_group.empty()
+        win_scr.xy = (-1800, 0)
+        lose_scr.xy = (-1800, 0)
+        continue
+    else:
+        cfg.set("Default", "fps", FPS)
+        cfg.set("Default", "sound", SOUND)
+        cfg.set("Default", "generation_mod", GENERATION_MOD)
+        cfg.save("config.ini")
+    pygame.quit()
+    break

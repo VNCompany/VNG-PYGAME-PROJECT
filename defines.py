@@ -13,6 +13,9 @@ G_STATUS_STOPPED = 4
 GENERATION_MOD_OLD = 0
 GENERATION_MOD_NEW = 1
 
+SCORE_MAIN_MENU = 0
+SCORE_NONE = 1
+
 # Parameters
 SIZE = WIDTH, HEIGHT = 800, 500
 FPS = int(cfg.get("Default", "fps"))
@@ -22,11 +25,11 @@ SOUND = int(cfg.get("Default", "sound")) == 1
 GENERATION_MOD = int(cfg.get("Default", "generation_mod"))
 
 TITLE_TEXT = ["--------------------- Control ---------------------",
-              "     Keyboard arrows - moving",
-              "     SPACE - shooting",
-              "     P - Pause",
-              "-------------------------------------------------------",
-              "             PRESS ANY BUTTON"
+              "              Keyboard arrows - moving",
+              "              SPACE - shooting",
+              "              P - Pause",
+              "------------------------------------------------------",
+              "                      PRESS ANY BUTTON"
               ]
 
 SCORE_TEXT = ["------------------- Results -------------------",
