@@ -495,14 +495,14 @@ while True:
     for level in levels:
         Blackhole(s_blackhole, blackhole_group)
         if SOUND:
-            pygame.mixer.music.stop()
             if level.is_boss_level:
                 pygame.mixer.music.load(mp3_boss_sound)
                 pygame.mixer.music.set_volume(0.6)
+                pygame.mixer.music.play(-1)
             elif level.infinity:
                 pygame.mixer.music.load(mp3_infinity_sound)
                 pygame.mixer.music.set_volume(0.8)
-            pygame.mixer.music.play(-1)
+                pygame.mixer.music.play(-1)
         load_level(level)
 
         # Closing level
