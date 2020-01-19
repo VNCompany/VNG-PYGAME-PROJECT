@@ -36,6 +36,7 @@ INDICATOR = load_indicator()
 mp3_start_sound = "data/sound/start_sound.mp3"
 mp3_background = "data/sound/background.mp3"
 mp3_boss_sound = "data/sound/boss_sound_01.mp3"
+mp3_infinity_sound = "data/sound/infinity_sound.mp3"
 
 # Image files
 win_scr = ResScreen(load_image("sprites/bg_win.jpg"), 28)
@@ -355,8 +356,9 @@ while True:
     selected_levels = LEVELS_LIST[0]
 
     if SOUND:
-        pygame.mixer.music.load(mp3_start_sound)
-        pygame.mixer.music.play(start=0.6, loops=-1)
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.load(mp3_start_sound)
+            pygame.mixer.music.play(start=0.6, loops=-1)
 
     # MAIN MENU
     running = True
@@ -492,10 +494,14 @@ while True:
     level_count = 0
     for level in levels:
         Blackhole(s_blackhole, blackhole_group)
-        if level.is_boss_level and SOUND:
+        if SOUND:
             pygame.mixer.music.stop()
-            pygame.mixer.music.load(mp3_boss_sound)
-            pygame.mixer.music.set_volume(0.6)
+            if level.is_boss_level:
+                pygame.mixer.music.load(mp3_boss_sound)
+                pygame.mixer.music.set_volume(0.6)
+            elif level.infinity:
+                pygame.mixer.music.load(mp3_infinity_sound)
+                pygame.mixer.music.set_volume(0.8)
             pygame.mixer.music.play(-1)
         load_level(level)
 

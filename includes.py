@@ -88,6 +88,13 @@ def score_screen(text: list, screen, clock, fps, score, level_count):
                 elif mouse_in_rect(event.pos, pygame.Rect(209, 435, 158, 42)):
                     close_status = 0
                     running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    close_status = 1
+                    running = False
+                elif event.key == pygame.K_m:
+                    close_status = 0
+                    running = False
         pygame.display.flip()
         clock.tick(fps)
     return close_status

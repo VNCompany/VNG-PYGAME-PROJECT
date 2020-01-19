@@ -103,11 +103,10 @@ def characters_generator_old(count: int, m_probability: float, size: tuple, add_
     return points
 
 
-def characters_generator(count: int, m_probability: float, size: tuple, add_width: int = 0):
+def characters_generator(count: int, m_probability: float, size: tuple):
     start_x_pos = 950
-    width = count * size[0] // 2
-    cols = width // size[0]
     rows = 5
+    cols = count // 5 * 3
     m_p = int(m_probability * 100)
 
     field = []
@@ -120,8 +119,10 @@ def characters_generator(count: int, m_probability: float, size: tuple, add_widt
     points = []
     for i in range(count):
         while True:
-            r = random.randrange(0, rows)
-            c = random.randrange(0, cols)
+            r = random.randrange(0, rows * 100)
+            c = random.randrange(0, cols * 100)
+            r = r // 100
+            c = c // 100
             if field[r][c] == 0:
                 # Meteorite generation
                 if m_p <= 0:
