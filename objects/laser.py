@@ -1,4 +1,5 @@
 import pygame
+from defines import WIDTH, HEIGHT
 
 
 class Laser(pygame.sprite.Sprite):
@@ -11,8 +12,8 @@ class Laser(pygame.sprite.Sprite):
         self.rect.y = ship_rect.y + 20
 
     def update(self):
-        self.rect = self.rect.move(15, 0)
-        if self.rect.x + self.rect.width > 800:
+        self.rect = self.rect.move(17, 0)
+        if self.rect.x + self.rect.width > WIDTH:
             self.kill()
 
 
@@ -23,9 +24,9 @@ class EnemyLaser(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(image)
         self.rect = image.get_rect()
         self.rect.x = ship_rect.x + 2 + self.rect.width
-        self.rect.y = ship_rect.y + 237
+        self.rect.y = (HEIGHT - self.rect.height) // 2
 
     def update(self):
-        self.rect = self.rect.move(-15, 0)
+        self.rect = self.rect.move(-19, 0)
         if self.rect.x + self.rect.width < -5:
             self.kill()

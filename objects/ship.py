@@ -1,4 +1,5 @@
 import pygame
+from defines import WIDTH, HEIGHT
 
 
 class Ship(pygame.sprite.Sprite):
@@ -10,8 +11,8 @@ class Ship(pygame.sprite.Sprite):
         self.image_crash = image_crash
         self.mask = pygame.mask.from_surface(image)
         self.rect = image.get_rect()
-        self.rect.x = 100
-        self.rect.y = 150
+        self.rect.x = 200
+        self.rect.y = 250
 
     def transfer(self, move: str):
         if not self.is_alive:
@@ -19,16 +20,16 @@ class Ship(pygame.sprite.Sprite):
 
         if move == "left":
             if self.rect.x >= 5:
-                self.rect = self.rect.move(-5, 0)
+                self.rect = self.rect.move(-7, 0)
         if move == "right":
-            if self.rect.x + self.rect.width <= 795:
-                self.rect = self.rect.move(5, 0)
+            if self.rect.x + self.rect.width <= WIDTH - 5:
+                self.rect = self.rect.move(7, 0)
         if move == "up":
             if self.rect.y >= 5:
-                self.rect = self.rect.move(0, -5)
+                self.rect = self.rect.move(0, -7)
         if move == "down":
-            if self.rect.y + self.rect.height <= 495:
-                self.rect = self.rect.move(0, 5)
+            if self.rect.y + self.rect.height <= HEIGHT - 5:
+                self.rect = self.rect.move(0, 7)
 
     def crash(self):
         self.image = self.image_crash

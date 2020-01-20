@@ -17,7 +17,7 @@ SCORE_MAIN_MENU = 0
 SCORE_NONE = 1
 
 # Parameters
-SIZE = WIDTH, HEIGHT = 800, 500
+SIZE = WIDTH, HEIGHT = 1000, 700
 FPS = int(cfg.get("Default", "fps"))
 WINDOW_TITLE = "Warspace"
 SOUND = int(cfg.get("Default", "sound")) == 1

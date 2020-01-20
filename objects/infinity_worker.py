@@ -11,7 +11,7 @@ class Infinity:
     healths_old_c = 0
     add_enemy_c = 0
 
-    pre_speed = 3
+    pre_speed = 5
     pre_health = "1:1"
 
     def __init__(self, speeds: list, healths: list, start_count: int):

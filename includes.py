@@ -27,13 +27,13 @@ def screen_start(text: list, screen, clock, fps):
     bg = load_image("images/background.jpg")
     screen.blit(bg, (0, 0))
     font = pygame.font.Font("data/fonts/impact.ttf", 35)
-    txt_pos = 100
+    txt_pos = 200
     for string in text:
         s = font.render(string, 1, (255, 255, 0))
         s_rect = s.get_rect()
         txt_pos += 10
         s_rect.y = txt_pos
-        s_rect.x = 116
+        s_rect.x = 216
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
@@ -50,7 +50,7 @@ def screen_start(text: list, screen, clock, fps):
 
 def score_screen(text: list, screen, clock, fps, score, level_count):
     close_status = 1
-    bg = load_image("images/score.png")
+    bg = load_image("images/score.jpg")
     screen.blit(bg, (0, 0))
     font = pygame.font.Font("data/fonts/RobotoMono.ttf", 35)
     txt_pos = 90
@@ -68,7 +68,7 @@ def score_screen(text: list, screen, clock, fps, score, level_count):
         s_rect = s.get_rect()
         txt_pos += 2
         s_rect.y = txt_pos
-        s_rect.x = 178
+        s_rect.x = 278
         txt_pos += s_rect.height
         screen.blit(s, s_rect)
 
@@ -82,10 +82,10 @@ def score_screen(text: list, screen, clock, fps, score, level_count):
                     print("У вас проблемы с аудио системой.")
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if mouse_in_rect(event.pos, pygame.Rect(529, 435, 57, 42)):
+                if mouse_in_rect(event.pos, pygame.Rect(648, 617, 57, 42)):
                     close_status = 1
                     running = False
-                elif mouse_in_rect(event.pos, pygame.Rect(209, 435, 158, 42)):
+                elif mouse_in_rect(event.pos, pygame.Rect(291, 620, 156, 42)):
                     close_status = 0
                     running = False
             elif event.type == pygame.KEYDOWN:

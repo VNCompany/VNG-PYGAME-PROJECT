@@ -1,5 +1,6 @@
 import random
 import time
+from defines import WIDTH, HEIGHT
 
 
 class IRect:
@@ -71,8 +72,8 @@ class IRect:
 def characters_generator_old(count: int, m_probability: float, size: tuple, add_width: int = 300):
     points = []
 
-    min_width = 950
-    width = (count * size[0] * size[1]) // 500 + add_width + 902 + min_width
+    min_width = WIDTH + 200
+    width = (count * size[0] * size[1]) // HEIGHT + 902 + min_width
 
     for i in range(count):
         not_valid = True
@@ -104,9 +105,9 @@ def characters_generator_old(count: int, m_probability: float, size: tuple, add_
 
 
 def characters_generator(count: int, m_probability: float, size: tuple):
-    start_x_pos = 950
-    rows = 5
-    cols = count // 5 * 3
+    start_x_pos = HEIGHT + 150
+    rows = HEIGHT // size[1]
+    cols = count // rows
     m_p = int(m_probability * 100)
 
     field = []

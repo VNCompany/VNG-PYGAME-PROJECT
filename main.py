@@ -26,7 +26,7 @@ random.shuffle(IMAGE_MAPS)
 
 clock = pygame.time.Clock()
 SCORE = 0
-SCORES = []
+SCORES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 EVENT_TIMER_INFINITY = pygame.USEREVENT + 1
 EVENT_TIMER_BOSSFIRE = EVENT_TIMER_INFINITY + 1
 
@@ -39,12 +39,12 @@ mp3_boss_sound = "data/sound/boss_sound_01.mp3"
 mp3_infinity_sound = "data/sound/infinity_sound.mp3"
 
 # Image files
-win_scr = ResScreen(load_image("sprites/bg_win.jpg"), 28)
+win_scr = ResScreen(load_image("sprites/bg_win.jpg"))
 lose_scr = ResScreen(load_image("sprites/bg_lose.jpg"))
 background = load_image("images/background.jpg")
-main_menu_background = load_image("images/main_menu.png")
-main_menu_r_background = load_image("images/main_menu_grandom.png")
-main_menu_t_background = load_image("images/main_menu_gtable.png")
+main_menu_background = load_image("images/main_menu.jpg")
+main_menu_r_background = load_image("images/main_menu_grandom.jpg")
+main_menu_t_background = load_image("images/main_menu_gtable.jpg")
 
 # Sprites
 s_ship = load_image("sprites/spaceship1.png")
@@ -79,8 +79,8 @@ def set_score(score: int):
     font = pygame.font.Font(None, 30)
     pause_text = font.render("Score: " + str(score), 1, (255, 255, 0))
     pt_rect = pause_text.get_rect()
-    pt_rect.x = 640
-    pt_rect.y = 3
+    pt_rect.x = WIDTH - 5 - pt_rect.width
+    pt_rect.y = 5
     screen.blit(pause_text, pt_rect)
 
 
@@ -88,8 +88,8 @@ def set_boss_hp(current: int, max: int):
     font = pygame.font.Font(None, 30)
     pause_text = font.render("Boss: " + str(round(current / max * 100)), 1, (255, 255, 0))
     pt_rect = pause_text.get_rect()
-    pt_rect.x = 3
-    pt_rect.y = 3
+    pt_rect.x = 5
+    pt_rect.y = 5
     screen.blit(pause_text, pt_rect)
 
 
@@ -98,7 +98,7 @@ def set_level_name(name: str):
     txt = font.render("Level " + name, 1, (255, 255, 0))
     tr = txt.get_rect()
     pos_x = WIDTH - tr.width - 6
-    pos_y = HEIGHT - tr.height - 3
+    pos_y = HEIGHT - tr.height - 6
     screen.blit(txt, (pos_x, pos_y))
 
 
@@ -217,8 +217,8 @@ def load_level(lvl: Level):
             font = pygame.font.Font(None, 100)
             pause_text = font.render("ПАУЗА", 1, (255, 255, 0))
             pt_rect = pause_text.get_rect()
-            pt_rect.x = 280
-            pt_rect.y = 214
+            pt_rect.x = (WIDTH - pt_rect.width) // 2
+            pt_rect.y = (HEIGHT - pt_rect.height) // 2
             screen.blit(pause_text, pt_rect)
 
             pygame.display.flip()
@@ -283,7 +283,10 @@ def load_level(lvl: Level):
                             laser.kill()
                             laser_y = laser.rect.y
                             laser_yh = laser_y + laser.rect.height
-                            if laser_y >= 211 and laser_yh <= 288:
+
+                            attack_height = 76
+                            secure_zone = (HEIGHT - 76) // 2
+                            if laser_y > secure_zone and laser_yh < secure_zone + 76:
                                 boss.kick()
                                 if SOUND:
                                     wav_boss_kick.play()
@@ -341,8 +344,8 @@ def load_level(lvl: Level):
             else:
                 pass
 
-        if -1 < slider_pos_x < 800:
-            pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(slider_pos_x, 0, 800, 500))
+        if -1 < slider_pos_x < WIDTH:
+            pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(slider_pos_x, 0, WIDTH, HEIGHT))
             slider_pos_x += 50
         elif slider_pos_x != -1:
             slider_pos_x = -1
@@ -374,7 +377,7 @@ while True:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 sound_image_pos = s_sound_icons[0].get_rect()
-                sound_image_pos = (736, 15, sound_image_pos.width, sound_image_pos.height)
+                sound_image_pos = (940, 10, sound_image_pos.width, sound_image_pos.height)
 
                 if mouse_in_rect(event.pos, pygame.Rect(sound_image_pos)):
                     SOUND = not SOUND
@@ -389,26 +392,27 @@ while True:
                     except:
                         SOUND = False
                         print("У вас проблемы с аудио системой!")
-                if mouse_in_rect(event.pos, pygame.Rect(211, 470, 68, 19)):
+
+                # Select generation modification
+                if mouse_in_rect(event.pos, pygame.Rect(287, 658, 120, 25)):
                     GENERATION_MOD = 1 if GENERATION_MOD == 0 else 0
-                    print("y")
 
                 #  Easy
-                elif mouse_in_rect(event.pos, pygame.Rect(285, 232, 230, 36)):
+                elif mouse_in_rect(event.pos, pygame.Rect(385, 332, 230, 36)):
                     running = False
 
                 #  Normal
-                elif mouse_in_rect(event.pos, pygame.Rect(285, 289, 230, 36)):
+                elif mouse_in_rect(event.pos, pygame.Rect(385, 389, 230, 36)):
                     selected_levels = LEVELS_LIST[1]
                     running = False
 
                 #  Hard
-                elif mouse_in_rect(event.pos, pygame.Rect(285, 345, 230, 36)):
+                elif mouse_in_rect(event.pos, pygame.Rect(385, 445, 230, 36)):
                     selected_levels = LEVELS_LIST[2]
                     running = False
 
                 #  Infinity
-                elif mouse_in_rect(event.pos, pygame.Rect(285, 400, 230, 36)):
+                elif mouse_in_rect(event.pos, pygame.Rect(385, 500, 230, 36)):
                     selected_levels = LEVELS_LIST[3]
                     running = False
 
@@ -416,7 +420,7 @@ while True:
             screen.blit(main_menu_t_background, (0, 0))
         else:
             screen.blit(main_menu_r_background, (0, 0))
-        screen.blit(s_sound_icons[0] if SOUND else s_sound_icons[1], (736, 15))
+        screen.blit(s_sound_icons[0] if SOUND else s_sound_icons[1], (940, 10))
 
         pygame.display.flip()
         clock.tick(FPS)
@@ -506,8 +510,8 @@ while True:
         load_level(level)
 
         # Closing level
-        player.rect.x = 100
-        player.rect.y = 150
+        player.rect.x = 150
+        player.rect.y = 400
         blackhole_group.empty()
 
         if status != G_STATUS_PLAYING:
