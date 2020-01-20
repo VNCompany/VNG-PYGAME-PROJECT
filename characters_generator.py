@@ -79,7 +79,7 @@ def characters_generator_old(count: int, m_probability: float, size: tuple, add_
         not_valid = True
         while not_valid:
             x = random.randrange(min_width, width)
-            y = random.randrange(2, 394)
+            y = random.randrange(2, HEIGHT - 104)
             rect = IRect("a", True, x, y, size)
 
             not_valid = False
@@ -105,9 +105,9 @@ def characters_generator_old(count: int, m_probability: float, size: tuple, add_
 
 
 def characters_generator(count: int, m_probability: float, size: tuple):
-    start_x_pos = HEIGHT + 150
+    start_x_pos = WIDTH + 200
     rows = HEIGHT // size[1]
-    cols = count // rows
+    cols = count // rows * 3
     m_p = int(m_probability * 100)
 
     field = []

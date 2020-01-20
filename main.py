@@ -26,7 +26,7 @@ random.shuffle(IMAGE_MAPS)
 
 clock = pygame.time.Clock()
 SCORE = 0
-SCORES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+SCORES = []
 EVENT_TIMER_INFINITY = pygame.USEREVENT + 1
 EVENT_TIMER_BOSSFIRE = EVENT_TIMER_INFINITY + 1
 
